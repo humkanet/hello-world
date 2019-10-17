@@ -7,7 +7,7 @@ FOSC     = 8000000UL
 OBJ_DIR  = ./obj
 DIST_DIR = ./dist
 
-SRCS     = main.c pwm.c clock.c
+SRCS     = main.c pwm.c clock.c button.c
 
 OBJS     = $(SRCS:.c=.p1)
 DEPS     = $(SRCS:.c=.d)

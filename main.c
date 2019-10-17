@@ -2,6 +2,7 @@
 #include "config.h"
 #include "pwm.h"
 #include "clock.h"
+#include "button.h"
 
 
 void __interrupt() isr()

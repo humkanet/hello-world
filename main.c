@@ -23,20 +23,36 @@ inline void setup()
 }
 
 
+void button_event(BUTTON *btn, BUTTON_EVENT e)
+{
+	// Если кнопка зажата вниз - запускаем ШИМ,
+	// иначе останавливаем
+	if (e==BUTTON_EVENT_DOWN) pwm_start();
+	else pwm_stop();
+}
+
+
 void main()
 {
 	di();
 	setup();
 	ei();
 
+	// Кнопка, пин RC2
+	BUTTON btn = {
+		.port  = BUTTON_PORTC,
+		.pin   = 2,
+		.event = button_event
+	};
+
 	// ШИМ: Ton=20мсек, Toff=10мсек
 	pwm_set(20,10);
 
 	for(;;){
-		// На нечетных секундах ШИМ запускаем, на четных останавливаем
-		uint8_t sec = (uint8_t) clock_sec();
-		if (sec&0x01) pwm_start();
-		else pwm_stop();
+		// Считываем системные часы
+		uint16_t msec = clock_msec();
+		// Обрабатываем кнопку
+		button_tick(&btn, msec);		
 		// Спим до след. события
 		SLEEP();
 	}

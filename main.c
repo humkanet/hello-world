@@ -44,6 +44,7 @@ void main()
 		.pin   = 2,
 		.event = button_event
 	};
+	button_init(&btn);
 
 	// ШИМ: Ton=20мсек, Toff=10мсек
 	pwm_set(20,10);

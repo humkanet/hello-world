@@ -194,3 +194,12 @@ inline uint16_t clock_sec()
 {
 	return clock_read_u16(&clock.sec);
 }
+
+
+void clock_delay(uint16_t msec)
+{
+	uint16_t  ts = clock_msec();
+	while (U16(clock_msec()-ts)<=msec){
+		SLEEP();
+	}
+}

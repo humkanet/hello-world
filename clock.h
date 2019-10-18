@@ -40,6 +40,7 @@ inline void      clock_isr(void);
 inline void      clock_init(void);
 inline uint16_t  clock_msec(void);
 inline uint16_t  clock_sec(void);
+void             clock_delay(uint16_t msec);
 
 
 #endif

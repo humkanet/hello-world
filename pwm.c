@@ -86,8 +86,8 @@ void pwm_set(uint16_t ton, uint16_t toff)
 		TMR1ON = 0;
 		LC1EN  = 0;
 		// Настраиваем CCP, таймер
-		CCPR1  = pwm.toff;
-		CCPR2  = pwm.ton+pwm.toff;
+		CCPR1  = pwm.toff-1;
+		CCPR2  = pwm.ton+CCPR1;
 		TMR1   = CCPR2-1;
 		// Запускаем таймер и CLC
 		LC1EN  = 1;

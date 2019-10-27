@@ -90,7 +90,7 @@ uint8_t button_pin(BUTTON *btn)
 	uint8_t  mask = 1<<btn->pin;
 	switch(btn->port){
 		#ifdef TRISA
-		case BUTTON_PORTA:
+		case BUTTON_PORTA:git
 			return PORTA & mask;
 		#endif
 		#ifdef TRISB

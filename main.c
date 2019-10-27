@@ -3,6 +3,7 @@
 #include "pwm.h"
 #include "clock.h"
 #include "button.h"
+#include "encoder.h"
 
 
 void __interrupt() isr()

@@ -2,16 +2,11 @@
 #define _BUTTON_H
 
 #include <stdint.h>
+#include "hal.h"
 
 
 #define BUTTON_DEBOUNCE_MS  50
-
-
-typedef enum {
-	BUTTON_PORTA = 0x00,
-	BUTTON_PORTB = 0x01,
-	BUTTON_PORTC = 0x02
-} BUTTON_PORT;
+#define MAX_BUTTONS         4
 
 
 typedef enum {
@@ -33,17 +28,17 @@ typedef void   (*BUTTON_CALLBACK)(BUTTON *btn, BUTTON_EVENT e);
 
 
 struct _BUTTON {
-	uint8_t          port : 2;
-	uint8_t          pin  : 3;
-	uint8_t          stage: 2;
-	uint16_t         msec;
-	BUTTON_CALLBACK  event;
+	HAL_PIN       pin;
+	BUTTON_STAGE  stage;
+	uint16_t      msec;
+	BUTTON_CALLBACK  callback;
 };
 
 
-void         button_init(BUTTON *btn);
-void         button_tick(BUTTON *btn, uint16_t msec);
-uint8_t      button_pin(BUTTON *btn);
-inline void  button_reset(BUTTON *btn);
+inline void  button_init(void);
+inline void  button_tick(uint16_t msec);
+void         button_append(BUTTON *btn);
+void         button_remove(BUTTON *btn);
+void         button_reset(BUTTON *btn);
 
 #endif /* _BUTTON_H */

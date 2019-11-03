@@ -11,20 +11,29 @@
 
 
 #include <stdint.h>
-
-
-#define ENCODER_PORT_A  A
-#define ENCODER_PIN_A   0
-#define ENCODER_PORT_B  A
-#define ENCODER_PIN_B   2
+#include "hal.h"
 
 
 #define ENCODER_SAMPLE_RATE  1500
+#define MAX_ENCODERS         4
 
 
-inline void    encoder_isr(void);
-inline void    encoder_init(void);
-inline void    encoder_reset(void);
-inline int8_t  encoder_read(void);
+typedef struct _ENCODER ENCODER;
+typedef void   (*ENCODER_CALLBACK)(ENCODER *enc, int8_t cnt);
+
+
+struct _ENCODER {
+	HAL_PIN  pina;
+	HAL_PIN  pinb;
+	ENCODER_CALLBACK  callback;
+};
+
+
+inline void  encoder_isr(void);
+inline void  encoder_init(void);
+void         encoder_append(ENCODER *enc);
+void         encoder_remove(ENCODER *enc);
+void         encoder_reset(ENCODER *enc);
+void         encoder_tick(void);
 
 #endif

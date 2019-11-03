@@ -5,109 +5,109 @@
 #define U16(x)  ((uint16_t) (x))
 
 
-void button_init(BUTTON *btn)
-{	
-	uint8_t pin = (1<<btn->pin);
-	switch(btn->port){
-		#ifdef TRISA
-		case BUTTON_PORTA:
-			TRISA   |= pin;
-			WPUA    |= pin;
-			ANSELA  &= ~pin;
-			SLRCONA |= pin;
-			break;
-		#endif
-		#ifdef TRISB
-		case BUTTON_PORTB:
-			TRISB   |= pin;
-			WPUB    |= pin;
-			ANSELB  &= ~pin;
-			SLRCONB |= pin;
-			break;
-		#endif
-		#ifdef TRISC
-		case BUTTON_PORTC:
-			TRISC   |= pin;
-			WPUC    |= pin;
-			ANSELC  &= ~pin;
-			SLRCONC |= pin;
-			break;
-		#endif
-	}
-	btn->stage = BUTTON_STAGE_IDLE;
-}
+typedef struct {
+	BUTTON   *button;
+} ENTRY;
 
 
-void button_tick(BUTTON *btn, uint16_t msec)
+volatile struct {
+	ENTRY  entries[MAX_BUTTONS];
+} buttons;
+
+
+inline void button_init()
 {
-	// Считываем значение пина
-	uint8_t pin = button_pin(btn);
-	// Конечный автомат для кнопки
-	switch(btn->stage){
-		/* Кнопка простивает */ 
-		case BUTTON_STAGE_IDLE:
-			// Если на пине низкий уровень, то переводим в режим
-			// подавления дребезга
-			if (!pin){
-				btn->msec  = msec;
-				btn->stage = BUTTON_STAGE_DEBOUNCE;
-			}
-			break;
-		/* Режим подавления дребезга */
-		case BUTTON_STAGE_DEBOUNCE:
-			// Ждем интервал подавления дребезга
-			if (U16(msec-btn->msec)<BUTTON_DEBOUNCE_MS) return;
-			// Если после указанного интервала на пине низкий уровень,
-			// то помечаем кнопку как нажатую, иначе переводим в
-			// режим простоя
-			if (!pin){
-				if (btn->event) btn->event(btn, BUTTON_EVENT_DOWN);
-				btn->stage = BUTTON_STAGE_DOWN;
-			}
-			else btn->stage = BUTTON_STAGE_IDLE;
-			break;
-		/* Кнопка нажата */
-		case BUTTON_STAGE_DOWN:
-			// Ждем когда на пине появится высокий уровень и переводим
-			// кнопку в режим простоя
-			if (pin){
-				if (btn->event) btn->event(btn, BUTTON_EVENT_UP);
-				btn->stage = BUTTON_STAGE_IDLE;
-			}
-			break;
-		/* Режим сброса кнопки */
-		case BUTTON_STAGE_RESET:
-			// Ждем когда на пине появится высокий уровень и переводим
-			// кнопку в режим простоя
-			if (pin) btn->stage = BUTTON_STAGE_IDLE;
-			break;
+	volatile ENTRY *entry = buttons.entries;
+	for (uint8_t n=0; n<MAX_BUTTONS; n++, entry++){
+		entry->button = NULL;	
 	}
 }
 
 
-uint8_t button_pin(BUTTON *btn)
+inline void button_tick(uint16_t msec)
 {
-	uint8_t  mask = 1<<btn->pin;
-	switch(btn->port){
-		#ifdef TRISA
-		case BUTTON_PORTA:
-			return PORTA & mask;
-		#endif
-		#ifdef TRISB
-		case BUTTON_PORTB:
-			return PORTB & mask;
-		#endif
-		#ifdef TRISC
-		case BUTTON_PORTC:
-			return PORTC & mask;
-		#endif
+	volatile ENTRY *entry = buttons.entries;
+	for (uint8_t n=0; n<MAX_BUTTONS; n++, entry++){
+		BUTTON  *btn = entry->button;
+		if (btn==NULL) continue;
+		// Считываем значение пина
+		uint8_t pin = pin_read(btn->pin);
+		// Конечный автомат для кнопки
+		switch(btn->stage){
+			/* Кнопка простивает */ 
+			case BUTTON_STAGE_IDLE:
+				// Если на пине низкий уровень, то переводим в режим
+				// подавления дребезга
+				if (!pin){
+					btn->msec  = msec;
+					btn->stage = BUTTON_STAGE_DEBOUNCE;
+				}
+				break;
+			/* Режим подавления дребезга */
+			case BUTTON_STAGE_DEBOUNCE:
+				// Ждем интервал подавления дребезга
+				if (U16(msec-btn->msec)<BUTTON_DEBOUNCE_MS) return;
+				// Если после указанного интервала на пине низкий уровень,
+				// то помечаем кнопку как нажатую, иначе переводим в
+				// режим простоя
+				if (!pin){
+					if (btn->callback) btn->callback(btn, BUTTON_EVENT_DOWN);
+					btn->stage = BUTTON_STAGE_DOWN;
+				}
+				else btn->stage = BUTTON_STAGE_IDLE;
+				break;
+			/* Кнопка нажата */
+			case BUTTON_STAGE_DOWN:
+				// Ждем когда на пине появится высокий уровень и переводим
+				// кнопку в режим простоя
+				if (pin){
+					if (btn->callback) btn->callback(btn, BUTTON_EVENT_UP);
+					btn->stage = BUTTON_STAGE_IDLE;
+				}
+				break;
+			/* Режим сброса кнопки */
+			case BUTTON_STAGE_RESET:
+				// Ждем когда на пине появится высокий уровень и переводим
+				// кнопку в режим простоя
+				if (pin) btn->stage = BUTTON_STAGE_IDLE;
+				break;
+		}
 	}
-	// Пин не найден, возвращаем высокий уровень
-	return 0xFF;
 }
 
 
-inline void button_reset(BUTTON *btn)
+void button_append(BUTTON *btn)
+{
+	volatile ENTRY *entry = buttons.entries;
+	for (uint8_t n=0; n<MAX_BUTTONS; n++, entry++){
+		// Ищем свободный слот
+		if (entry->button==NULL){
+			// Настраиваем пины
+			pin_config(btn->pin, HAL_PIN_TRISTATE | HAL_PIN_PULLUP);
+			// Инициализируем кнопку
+			btn->stage = BUTTON_STAGE_IDLE;
+			// Добавляем кнопку в обработку
+			entry->button = btn;
+			break;
+		}
+	}
+}
+
+
+void button_remove(BUTTON *btn)
+{
+	volatile ENTRY *entry = buttons.entries;
+	for (uint8_t n=0; n<MAX_BUTTONS; n++, entry++){
+		// Ищем кнопку
+		if (entry->button==btn){
+			entry->button = NULL;
+			break;
+		}
+	}
+}
+
+
+void button_reset(BUTTON *btn)
 {
 	btn->stage = BUTTON_STAGE_IDLE;
 }

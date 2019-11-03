@@ -70,11 +70,11 @@ inline void encoder_isr()
 			entry->step += ENCODER_STEP[(entry->state<<2) | state];
 			if (entry->step>3){
 				entry->step = 0;
-				if (entry->cnt<100) entry->cnt ++;
+				if (!entry->lock && (entry->cnt<100)) entry->cnt ++;
 			}
 			else if (entry->step<-3){
 				entry->step = 0;
-				if (entry->cnt>-100) entry->cnt --;	
+				if (!entry->lock && (entry->cnt>-100)) entry->cnt --;	
 			}
 			// Сохраняем значеие пинов
 			entry->state = state;
@@ -160,13 +160,13 @@ void encoder_tick()
 	for (uint8_t n=0; n<MAX_ENCODERS; n++, entry++){
 		ENCODER *enc = entry->encoder;
 		if (enc!=NULL){
-			// Считываем значение
+			// Вызываем обработку
+			int8_t cnt = entry->cnt;
+			if (cnt && enc->callback) enc->callback(enc, cnt);
+			// Сбрасываем энкодер
 			entry->lock = 0x01;
-			int8_t  cnt = entry->cnt;
 			entry->cnt  = 0;
 			entry->lock = 0x00;
-			// Вызываем обработку
-			if (cnt && enc->callback) enc->callback(enc, cnt);
 		}
 	}
 }

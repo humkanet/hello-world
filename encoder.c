@@ -33,13 +33,7 @@ typedef struct {
 	ENCODER  *encoder;
 	int8_t   cnt;
 	int8_t   step;
-	union {
-		struct {
-			uint8_t  state:2;
-			uint8_t  lock :1;
-		};
-		uint8_t  flags;
-	};
+	uint8_t  state;
 } ENTRY;
 
 
@@ -67,14 +61,13 @@ inline void encoder_isr()
 			// Пины не изменились, пропускаем
 			if (state==entry->state) continue;
 			// Счетчик шагов
-			entry->step += ENCODER_STEP[(entry->state<<2) | state];
-			if (entry->step>3){
+			int8_t  inc  = ENCODER_STEP[(entry->state<<2) | state];
+			entry->step += inc;
+			if ((entry->step&0x07)>3){
+				// Увеличиваем количество щелчков
+				if ((entry->cnt&0x7F)<63) entry->cnt += inc;
+				// Сбрасываем счетчик шагов
 				entry->step = 0;
-				if (!entry->lock && (entry->cnt<100)) entry->cnt ++;
-			}
-			else if (entry->step<-3){
-				entry->step = 0;
-				if (!entry->lock && (entry->cnt>-100)) entry->cnt --;	
 			}
 			// Сохраняем значеие пинов
 			entry->state = state;
@@ -118,7 +111,6 @@ void encoder_append(ENCODER *enc)
 			// Инициализируем энкодер
 			entry->cnt   = 0;
 			entry->step  = 0;
-			entry->flags = 0x00;
 			// Сохраняем энкодер
 			entry->encoder = enc;
 			break;
@@ -147,10 +139,8 @@ void encoder_reset(ENCODER *enc)
 	for (uint8_t n=0; n<MAX_ENCODERS; n++, entry++){
 		// Ищем энкодер
 		if (entry->encoder==enc){
-			entry->lock = 0x01;
 			entry->cnt  = 0;
 			entry->step = 0;
-			entry->lock = 0x00;
 		}
 	}
 }
@@ -166,9 +156,7 @@ void encoder_tick()
 			int8_t cnt = entry->cnt;
 			if (cnt && enc->callback) enc->callback(enc, cnt);
 			// Сбрасываем энкодер
-			entry->lock = 0x01;
 			entry->cnt  = 0;
-			entry->lock = 0x00;
 		}
 	}
 }

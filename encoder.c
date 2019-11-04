@@ -101,6 +101,8 @@ inline void encoder_init()
 	TMR4   = 0;
 	TMR4IF = 0;
 	TMR4IE = 1;
+	// Запускаем таймер
+	TMR4ON = 1;
 }
 
 

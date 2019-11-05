@@ -5,6 +5,7 @@
 #include "clock.h"
 #include "button.h"
 #include "encoder.h"
+#include "pins.h"
 
 
 #define FLAG_PWM_TON_CHANGED   0x01
@@ -129,21 +130,21 @@ void main()
 
 	// Кнопка, пин RC2
 	BUTTON btn = {
-		.pin      = { .port=HAL_PORTC, .pin=2 },
+		.pin      = { .port=BUTTON_PORT, .pin=BUTTON_PIN },
 		.callback = button_callback
 	};
 	button_append(&btn);
 
-	// Энкодер1, пин A = RC0, пин B = RC1
+	// Энкодер1, изменение Ton ШИМ
 	ENCODER enc1 = {
-		.pina     = { .port=HAL_PORTC, .pin=0 },
-		.pinb     = { .port=HAL_PORTC, .pin=1 },
+		.pina     = { .port=ENCODER1_PORTA, .pin=ENCODER1_PINA },
+		.pinb     = { .port=ENCODER1_PORTB, .pin=ENCODER1_PINB },
 		.callback = encoder1_callback
 	};
-	// Энкодер2, пин A = RA0, пин B = RA1
+	// Энкодер2, изменение Toff ШИМ
 	ENCODER enc2 = {
-		.pina     = { .port=HAL_PORTA, .pin=0 },
-		.pinb     = { .port=HAL_PORTA, .pin=1 },
+		.pina     = { .port=ENCODER2_PORTA, .pin=ENCODER2_PINA },
+		.pinb     = { .port=ENCODER2_PORTB, .pin=ENCODER2_PINB },
 		.callback = encoder2_callback
 	};
 	encoder_append(&enc1);

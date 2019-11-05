@@ -89,7 +89,7 @@ void encoder1_callback(ENCODER *enc, int8_t cnt)
 		// Изменяем значение
 		if (cnt<0) inc = -inc;
 		run.pwm_ton += inc;
-		// Устанавливаем флажок необходимости обработки изменения парамтров ШИМ
+		// Флажок изменения параметров ШИМ
 		run.flags   |= FLAG_PWM_CHANGED;		
 	}
 }
@@ -114,7 +114,7 @@ void encoder2_callback(ENCODER *enc, int8_t cnt)
 		// Изменяем значение
 		if (cnt<0) inc = -inc;
 		run.pwm_toff += inc;
-		// Устанавливаем флажок необходимости обработки изменения парамтров ШИМ
+		// Флажок изменения параметров ШИМ
 		run.flags   |= FLAG_PWM_CHANGED;		
 	}
 }

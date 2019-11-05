@@ -90,7 +90,7 @@ void encoder1_callback(ENCODER *enc, int8_t cnt)
 		if (cnt<0) inc = -inc;
 		run.pwm_ton += inc;
 		// Флажок изменения параметров ШИМ
-		run.flags   |= FLAG_PWM_CHANGED;		
+		run.flags |= FLAG_PWM_CHANGED;		
 	}
 }
 
@@ -115,7 +115,7 @@ void encoder2_callback(ENCODER *enc, int8_t cnt)
 		if (cnt<0) inc = -inc;
 		run.pwm_toff += inc;
 		// Флажок изменения параметров ШИМ
-		run.flags   |= FLAG_PWM_CHANGED;		
+		run.flags |= FLAG_PWM_CHANGED;		
 	}
 }
 

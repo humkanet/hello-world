@@ -53,25 +53,6 @@ void button_callback(BUTTON *btn, BUTTON_EVENT e)
 }
 
 
-uint8_t range_increment(uint8_t vmin, uint8_t vmax, uint8_t val, int8_t inc)
-{
-	// Определяем отступ от границ
-	uint8_t  d;
-	int8_t  step = inc;
-	if (inc>0){
-		d = vmax-val;
-	}
-	else{
-		d    = val-vmin;
-		step = -step;
-	}
-	if (!d) return 0;
-	// Определяем размер шага
-	if (step>d) step = d;
-	return step;
-}
-
-
 void encoder1_callback(ENCODER *enc, int8_t cnt)
 {
 	uint8_t  d;

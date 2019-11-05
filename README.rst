@@ -1,4 +1,4 @@
-Example usage of **pic16f183266** MCU
+Example usage of **pic16f18326** MCU
 
 ============
 Features

@@ -7,7 +7,8 @@
 #include "encoder.h"
 
 
-#define FLAG_PWM_CHANGED  0x01
+#define FLAG_PWM_TON_CHANGED   0x01
+#define FLAG_PWM_TOFF_CHANGED  0x02
 
 
 struct {
@@ -90,7 +91,7 @@ void encoder1_callback(ENCODER *enc, int8_t cnt)
 		if (cnt<0) inc = -inc;
 		run.pwm_ton += inc;
 		// Флажок изменения параметров ШИМ
-		run.flags |= FLAG_PWM_CHANGED;		
+		run.flags |= FLAG_PWM_TON_CHANGED;		
 	}
 }
 
@@ -115,7 +116,7 @@ void encoder2_callback(ENCODER *enc, int8_t cnt)
 		if (cnt<0) inc = -inc;
 		run.pwm_toff += inc;
 		// Флажок изменения параметров ШИМ
-		run.flags |= FLAG_PWM_CHANGED;		
+		run.flags |= FLAG_PWM_TOFF_CHANGED;		
 	}
 }
 
@@ -159,11 +160,11 @@ void main()
 		// Обрабатываем энкодеры
 		encoder_tick();
 		// Применяем новые параметры ШИМ
-		if (run.flags&FLAG_PWM_CHANGED){
+		if (run.flags&(FLAG_PWM_TON_CHANGED|FLAG_PWM_TOFF_CHANGED)){
 			// Устанавливаем новые параметры ШИМ
 			pwm_set(run.pwm_ton, run.pwm_toff);
-			// Убираем флаг изменения параметров ШИМ
-			run.flags &= ~FLAG_PWM_CHANGED;
+			// Убираем флаги изменения параметров ШИМ
+			run.flags &= ~(FLAG_PWM_TON_CHANGED|FLAG_PWM_TOFF_CHANGED);
 		}
 		// Спим до след. события
 		SLEEP();

@@ -18,15 +18,14 @@
 #define MAX_ENCODERS         4
 
 
-typedef struct _ENCODER ENCODER;
-typedef void   (*ENCODER_CALLBACK)(ENCODER *enc, int8_t cnt);
+typedef void   (*ENCODER_CALLBACK)(int8_t cnt);
 
 
-struct _ENCODER {
+typedef struct {
 	HAL_PIN  pina;
 	HAL_PIN  pinb;
 	ENCODER_CALLBACK  callback;
-};
+} ENCODER;
 
 
 inline void  encoder_isr(void);

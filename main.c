@@ -53,7 +53,7 @@ void button_callback(BUTTON *btn, BUTTON_EVENT e)
 }
 
 
-void encoder1_callback(ENCODER *enc, int8_t cnt)
+void encoder1_callback(int8_t cnt)
 {
 	uint8_t  d;
 	int8_t   inc = cnt;
@@ -78,7 +78,7 @@ void encoder1_callback(ENCODER *enc, int8_t cnt)
 }
 
 
-void encoder2_callback(ENCODER *enc, int8_t cnt)
+void encoder2_callback(int8_t cnt)
 {
 	uint8_t  d;
 	int8_t   inc = cnt;
@@ -111,21 +111,21 @@ void main()
 
 	// Кнопка, пин RC2
 	BUTTON btn = {
-		.pin      = { .port=BUTTON_PORT, .pin=BUTTON_PIN },
+		.pin      = HAL_MK_PIN(BUTTON_PORT, BUTTON_PIN),
 		.callback = button_callback
 	};
 	button_append(&btn);
 
 	// Энкодер1, изменение Ton ШИМ
 	ENCODER enc1 = {
-		.pina     = { .port=ENCODER1_PORTA, .pin=ENCODER1_PINA },
-		.pinb     = { .port=ENCODER1_PORTB, .pin=ENCODER1_PINB },
+		.pina     = HAL_MK_PIN(ENCODER1_PORTA, ENCODER1_PINA),
+		.pinb     = HAL_MK_PIN(ENCODER1_PORTB, ENCODER1_PINB),
 		.callback = encoder1_callback
 	};
 	// Энкодер2, изменение Toff ШИМ
 	ENCODER enc2 = {
-		.pina     = { .port=ENCODER2_PORTA, .pin=ENCODER2_PINA },
-		.pinb     = { .port=ENCODER2_PORTB, .pin=ENCODER2_PINB },
+		.pina     = HAL_MK_PIN(ENCODER2_PORTA, ENCODER2_PINA),
+		.pinb     = HAL_MK_PIN(ENCODER2_PORTB, ENCODER2_PINB),
 		.callback = encoder2_callback
 	};
 	encoder_append(&enc1);

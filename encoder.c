@@ -154,7 +154,7 @@ void encoder_tick()
 		if (enc!=NULL){
 			// Вызываем обработку
 			int8_t cnt = entry->cnt;
-			if (cnt && enc->callback) enc->callback(enc, cnt);
+			if (cnt && enc->callback) enc->callback(cnt);
 			// Сбрасываем энкодер
 			entry->cnt  = 0;
 		}

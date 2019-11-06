@@ -3,18 +3,19 @@
 
 #include <stdint.h>
 
+#define HAL_MK_PIN(port, pin)  ((HAL_PIN) ((port&0x03)|(pin<<2)))
+#define __HAL_PORT(x)          ((uint8_t) x&0x03)
+#define __HAL_PIN(x)           ((uint8_t) x>>2)
+
+
+typedef uint8_t HAL_PIN;
+
 
 typedef enum {
 	HAL_PORTA,
 	HAL_PORTB,
 	HAL_PORTC
 } HAL_PORT;
-
-
-typedef struct {
-	uint8_t  port:2;
-	uint8_t  pin :6;
-} HAL_PIN;
 
 
 typedef enum {

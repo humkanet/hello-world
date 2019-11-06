@@ -4,9 +4,9 @@
 
 void pin_config(HAL_PIN pin, uint8_t cfg)
 {
-	uint8_t  mask  = 1<<pin.pin;
+	uint8_t  mask  = 1<<__HAL_PIN(pin);
 	uint8_t  imask = ~mask;
-	switch(pin.port){
+	switch(__HAL_PORT(pin)){
 		#ifdef PORTA
 		case HAL_PORTA:
 			#ifdef WPUA
@@ -99,9 +99,9 @@ void pin_config(HAL_PIN pin, uint8_t cfg)
 
 void pin_set(HAL_PIN pin, uint8_t cfg, uint8_t val)
 {
-	uint8_t  mask  = 1<<pin.pin;
+	uint8_t  mask  = 1<<__HAL_PIN(pin);
 	if (!val) mask = ~mask;
-	switch(pin.port){
+	switch(__HAL_PORT(pin)){
 		#ifdef PORTA
 		case HAL_PORTA:
 			#ifdef WPUA
@@ -230,9 +230,9 @@ void pin_set(HAL_PIN pin, uint8_t cfg, uint8_t val)
 
 void pin_write(HAL_PIN pin, uint8_t val)
 {
-	uint8_t  mask  = 1<<pin.pin;
+	uint8_t  mask  = 1<<__HAL_PIN(pin);
 	if (!val) mask = ~mask;
-	switch(pin.port){
+	switch(__HAL_PORT(pin)){
 		#ifdef PORTA
 		case HAL_PORTA:
 			if (val) PORTA |= mask;
@@ -259,9 +259,9 @@ void pin_write(HAL_PIN pin, uint8_t val)
 
 uint8_t pin_read(HAL_PIN pin)
 {
-	uint8_t  mask = 1<<pin.pin;
+	uint8_t  mask = 1<<__HAL_PIN(pin);
 	uint8_t  val;
-	switch(pin.port){
+	switch(__HAL_PORT(pin)){
 		#ifdef PORTA
 		case HAL_PORTA:
 			val = PORTA&mask;
